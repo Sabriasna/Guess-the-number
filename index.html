@@ -19,7 +19,7 @@
       margin-top: 30px;
     }
 
-    input, button {
+    input, button, select {
       font-size: 18px;
       padding: 10px;
       margin: 10px;
@@ -55,19 +55,29 @@
 </head>
 <body>
 
-  <!-- En-tête d'accueil -->
+  <!-- Logo -->
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Emoji_u1f914.svg/1024px-Emoji_u1f914.svg.png" alt="Logo" id="logo">
+
+  <!-- Accueil -->
   <div id="accueil">
     <h1>Bienvenue !</h1>
-    <p>Entre ton prénom pour commencer :</p>
+    <p>Entre ton prénom et choisis ton niveau :</p>
     <input type="text" id="prenomInput" placeholder="Ton prénom" />
+    <br>
+    <select id="niveau">
+      <option value="facile">Facile (1-10)</option>
+      <option value="normal" selected>Normal (1-25)</option>
+      <option value="difficile">Difficile (1-50)</option>
+    </select>
+    <br>
     <button onclick="demarrerJeu()">Commencer le jeu</button>
   </div>
 
-  <!-- Section du jeu -->
+  <!-- Jeu -->
   <div id="jeu">
     <h2 id="titreJeu"></h2>
-    <p>Devine le nombre entre 1 et 50</p>
-    <input type="number" id="choix" min="1" max="50" placeholder="1 à 50" />
+    <p id="consigne"></p>
+    <input type="number" id="choix" />
     <button onclick="verifier()">Deviner</button>
     <button onclick="rejouer()" id="rejouer">Rejouer</button>
 
@@ -89,6 +99,7 @@
     let prenom = "";
     let tempsRestant = 30;
     let timer;
+    let maxNombre = 25;
 
     const victoireSound = document.getElementById("victoireSound");
 
@@ -97,15 +108,24 @@
       if (!input) return alert("Entre ton prénom avant de jouer !");
       prenom = input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
 
+      const niveau = document.getElementById("niveau").value;
+      if (niveau === "facile") maxNombre = 10;
+      else if (niveau === "normal") maxNombre = 25;
+      else maxNombre = 50;
+
+      document.getElementById("choix").setAttribute("min", "1");
+      document.getElementById("choix").setAttribute("max", maxNombre.toString());
+
       document.getElementById("accueil").style.display = "none";
       document.getElementById("jeu").style.display = "block";
       document.getElementById("titreJeu").textContent = `Bonne chance ${prenom} !`;
+      document.getElementById("consigne").textContent = `Devine un nombre entre 1 et ${maxNombre}`;
 
       initialiserJeu();
     }
 
     function initialiserJeu() {
-      nombreSecret = Math.floor(Math.random() * 50) + 1;
+      nombreSecret = Math.floor(Math.random() * maxNombre) + 1;
       essaisRestants = 5;
       jeuTerminé = false;
       tempsRestant = 30;
@@ -138,8 +158,8 @@
       const choix = parseInt(document.getElementById("choix").value);
       const message = document.getElementById("resultat");
 
-      if (isNaN(choix) || choix < 1 || choix > 50) {
-        message.textContent = `${prenom}, entre un nombre entre 1 et 50.`;
+      if (isNaN(choix) || choix < 1 || choix > maxNombre) {
+        message.textContent = `${prenom}, entre un nombre entre 1 et ${maxNombre}.`;
         return;
       }
 
