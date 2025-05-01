@@ -38,7 +38,7 @@
       background-color: #ddd;
     }
 
-    #resultat {
+    #resultat, #chrono {
       font-size: 20px;
       margin-top: 20px;
     }
@@ -52,35 +52,93 @@
       margin-top: 20px;
       font-size: 18px;
     }
+
+    #jeu, #rejouer {
+      display: none;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Image/logo en haut -->
+  <!-- Logo -->
   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Emoji_u1f914.svg/1024px-Emoji_u1f914.svg.png" alt="Logo" id="logo">
 
-  <h1>Bienvenue Sarah dans le jeu : Devine le nombre (Niveau difficile)</h1>
+  <!-- Demande du prénom -->
+  <div id="accueil">
+    <h1>Bienvenue !</h1>
+    <p>Entre ton prénom pour commencer :</p>
+    <input type="text" id="prenomInput" placeholder="Ton prénom" />
+    <button onclick="demarrerJeu()">Commencer le jeu</button>
+  </div>
 
-  <input type="number" id="choix" min="1" max="50" placeholder="1 à 50" />
-  <button onclick="verifier()">Deviner</button>
-  <button onclick="rejouer()" id="rejouer" style="display:none;">Rejouer</button>
+  <!-- Section du jeu -->
+  <div id="jeu">
+    <h2 id="titreJeu"></h2>
+    <p>Devine le nombre entre 1 et 50</p>
+    <input type="number" id="choix" min="1" max="50" placeholder="1 à 50" />
+    <button onclick="verifier()">Deviner</button>
+    <button onclick="rejouer()" id="rejouer">Rejouer</button>
 
-  <p id="resultat"></p>
+    <p id="resultat"></p>
+    <p id="chrono">Temps restant : <span id="temps">30</span>s</p>
 
-  <div id="score">
-    Victoires : <span id="v">0</span> |
-    Défaites : <span id="d">0</span>
+    <div id="score">
+      Victoires : <span id="v">0</span> |
+      Défaites : <span id="d">0</span>
+    </div>
   </div>
 
   <script>
-    let nombreSecret = Math.floor(Math.random() * 50) + 1;
-    let essaisRestants = 5;
+    let nombreSecret;
+    let essaisRestants;
     let jeuTerminé = false;
     let victoires = 0;
     let defaites = 0;
-    const prenom = "Sarah"; // Personnalisation du message
+    let prenom = "";
+    let tempsRestant = 30;
+    let timer;
 
     const victoireSound = document.getElementById("victoireSound");
+
+    function demarrerJeu() {
+      const input = document.getElementById("prenomInput").value.trim();
+      if (!input) return alert("Entre ton prénom avant de jouer !");
+      prenom = input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
+
+      document.getElementById("accueil").style.display = "none";
+      document.getElementById("jeu").style.display = "block";
+      document.getElementById("titreJeu").textContent = `Bonne chance ${prenom} !`;
+
+      initialiserJeu();
+    }
+
+    function initialiserJeu() {
+      nombreSecret = Math.floor(Math.random() * 50) + 1;
+      essaisRestants = 5;
+      jeuTerminé = false;
+      tempsRestant = 30;
+      document.getElementById("choix").value = "";
+      document.getElementById("resultat").textContent = "";
+      document.getElementById("rejouer").style.display = "none";
+      document.getElementById("temps").textContent = tempsRestant;
+      clearInterval(timer);
+      timer = setInterval(decompte, 1000);
+    }
+
+    function decompte() {
+      if (tempsRestant > 0) {
+        tempsRestant--;
+        document.getElementById("temps").textContent = tempsRestant;
+      } else {
+        clearInterval(timer);
+        if (!jeuTerminé) {
+          document.getElementById("resultat").textContent = `Temps écoulé ${prenom} ! Le nombre était ${nombreSecret}.`;
+          defaites++;
+          document.getElementById("d").textContent = defaites;
+          finDeJeu();
+        }
+      }
+    }
 
     function verifier() {
       if (jeuTerminé) return;
@@ -115,16 +173,12 @@
 
     function finDeJeu() {
       jeuTerminé = true;
+      clearInterval(timer);
       document.getElementById("rejouer").style.display = "inline";
     }
 
     function rejouer() {
-      nombreSecret = Math.floor(Math.random() * 50) + 1;
-      essaisRestants = 5;
-      jeuTerminé = false;
-      document.getElementById("choix").value = "";
-      document.getElementById("resultat").textContent = "";
-      document.getElementById("rejouer").style.display = "none";
+      initialiserJeu();
     }
   </script>
 </body>
