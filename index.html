@@ -2,18 +2,21 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Devine le Nombre</title>
+  <title>Jeu : Devine le nombre</title>
 
-  <!-- Import de la police Agrandir depuis Google Fonts -->
+  <!-- Police Agrandir -->
   <link href="https://fonts.googleapis.com/css2?family=Agrandir&display=swap" rel="stylesheet">
+
+  <!-- Son de victoire -->
+  <audio id="victoireSound" src="https://www.soundjay.com/human/sounds/applause-01.mp3" preload="auto"></audio>
 
   <style>
     body {
       font-family: 'Agrandir', sans-serif;
-      background-color: indigo;
+      background-color: blue;
       color: white;
       text-align: center;
-      margin-top: 50px;
+      margin-top: 30px;
     }
 
     input, button {
@@ -22,10 +25,6 @@
       margin: 10px;
       border: none;
       border-radius: 5px;
-    }
-
-    input {
-      width: 60px;
     }
 
     button {
@@ -43,53 +42,85 @@
       font-size: 20px;
       margin-top: 20px;
     }
+
+    #logo {
+      width: 150px;
+      margin-bottom: 20px;
+    }
+
+    #score {
+      margin-top: 20px;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
-  <h1>Jeu : Devine le nombre entre 1 et 10</h1>
 
-  <input type="number" id="choix" min="1" max="10" />
+  <!-- Image/logo en haut -->
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Emoji_u1f914.svg/1024px-Emoji_u1f914.svg.png" alt="Logo" id="logo">
+
+  <h1>Bienvenue Sarah dans le jeu : Devine le nombre (Niveau difficile)</h1>
+
+  <input type="number" id="choix" min="1" max="50" placeholder="1 à 50" />
   <button onclick="verifier()">Deviner</button>
   <button onclick="rejouer()" id="rejouer" style="display:none;">Rejouer</button>
 
   <p id="resultat"></p>
 
+  <div id="score">
+    Victoires : <span id="v">0</span> |
+    Défaites : <span id="d">0</span>
+  </div>
+
   <script>
-    let nombreSecret = Math.floor(Math.random() * 10) + 1;
-    let essaisRestants = 3;
+    let nombreSecret = Math.floor(Math.random() * 50) + 1;
+    let essaisRestants = 5;
     let jeuTerminé = false;
+    let victoires = 0;
+    let defaites = 0;
+    const prenom = "Sarah"; // Personnalisation du message
+
+    const victoireSound = document.getElementById("victoireSound");
 
     function verifier() {
       if (jeuTerminé) return;
 
-      const userChoix = parseInt(document.getElementById("choix").value);
+      const choix = parseInt(document.getElementById("choix").value);
       const message = document.getElementById("resultat");
 
-      if (isNaN(userChoix) || userChoix < 1 || userChoix > 10) {
-        message.textContent = "Entre un nombre entre 1 et 10.";
+      if (isNaN(choix) || choix < 1 || choix > 50) {
+        message.textContent = `${prenom}, entre un nombre entre 1 et 50.`;
         return;
       }
 
-      if (userChoix === nombreSecret) {
-        message.textContent = "Bravo ! Tu as deviné le bon nombre !";
-        jeuTerminé = true;
-        document.getElementById("rejouer").style.display = "inline";
+      if (choix === nombreSecret) {
+        message.textContent = `Bravo ${prenom} ! Tu as deviné le bon nombre !`;
+        victoireSound.play();
+        victoires++;
+        document.getElementById("v").textContent = victoires;
+        finDeJeu();
       } else {
         essaisRestants--;
         if (essaisRestants === 0) {
-          message.textContent = "Perdu ! Le bon nombre était " + nombreSecret + ".";
-          jeuTerminé = true;
-          document.getElementById("rejouer").style.display = "inline";
+          message.textContent = `Dommage ${prenom} ! Le bon nombre était ${nombreSecret}.`;
+          defaites++;
+          document.getElementById("d").textContent = defaites;
+          finDeJeu();
         } else {
-          const indice = userChoix < nombreSecret ? "C’est plus grand." : "C’est plus petit.";
-          message.textContent = indice + " Il te reste " + essaisRestants + " essai(s).";
+          const indice = choix < nombreSecret ? "C’est plus grand." : "C’est plus petit.";
+          message.textContent = `${indice} Il te reste ${essaisRestants} essai(s).`;
         }
       }
     }
 
+    function finDeJeu() {
+      jeuTerminé = true;
+      document.getElementById("rejouer").style.display = "inline";
+    }
+
     function rejouer() {
-      nombreSecret = Math.floor(Math.random() * 10) + 1;
-      essaisRestants = 3;
+      nombreSecret = Math.floor(Math.random() * 50) + 1;
+      essaisRestants = 5;
       jeuTerminé = false;
       document.getElementById("choix").value = "";
       document.getElementById("resultat").textContent = "";
