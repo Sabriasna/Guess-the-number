@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Devine le Nombre</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    input, button {
+      font-size: 18px;
+      padding: 10px;
+      margin: 10px;
+    }
+    #resultat {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jeu : Devine le nombre entre 1 et 10</h1>
+
+  <input type="number" id="choix" min="1" max="10" />
+  <button onclick="verifier()">Deviner</button>
+  <button onclick="rejouer()" id="rejouer" style="display:none;">Rejouer</button>
+
+  <p id="resultat"></p>
+
+  <script>
+    let nombreSecret = Math.floor(Math.random() * 10) + 1;
+    let essaisRestants = 3;
+    let jeuTerminé = false;
+
+    function verifier() {
+      if (jeuTerminé) return;
+
+      const userChoix = parseInt(document.getElementById("choix").value);
+      const message = document.getElementById("resultat");
+
+      if (isNaN(userChoix) || userChoix < 1 || userChoix > 10) {
+        message.textContent = "Entre un nombre entre 1 et 10.";
+        return;
+      }
+
+      if (userChoix === nombreSecret) {
+        message.textContent = "Bravo ! Tu as deviné le bon nombre !";
+        jeuTerminé = true;
+        document.getElementById("rejouer").style.display = "inline";
+      } else {
+        essaisRestants--;
+        if (essaisRestants === 0) {
+          message.textContent = "Perdu ! Le bon nombre était " + nombreSecret + ".";
+          jeuTerminé = true;
+          document.getElementById("rejouer").style.display = "inline";
+        } else {
+          const indice = userChoix < nombreSecret ? "C’est plus grand." : "C’est plus petit.";
+          message.textContent = indice + " Il te reste " + essaisRestants + " essai(s).";
+        }
+      }
+    }
+
+    function rejouer() {
+      nombreSecret = Math.floor(Math.random() * 10) + 1;
+      essaisRestants = 3;
+      jeuTerminé = false;
+      document.getElementById("choix").value = "";
+      document.getElementById("resultat").textContent = "";
+      document.getElementById("rejouer").style.display = "none";
+    }
+  </script>
+</body>
+</html>
